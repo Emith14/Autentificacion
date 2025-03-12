@@ -89,11 +89,18 @@ class RegisterController extends Controller
             ['user' => $user->id]
         );
 
-        // Send the activation email with the signed URL
-        Mail::to($user->email)->send(new ValidatorEmail($signedroute));
 
-        // Redirect to the registration page with a success message
-        return redirect()->route('register')->with('success', 'User created, check your email to activate your account.');
+            try {
+            // Enviar el correo de activación
+            Mail::to($user->email)->send(new ValidatorEmail($signedroute));
+
+            // Si el correo se envía correctamente, redirigir con un mensaje de éxito
+            return redirect()->route('register')->with('success', 'User created, check your email to activate your account.');
+        } catch (\Exception $e) {
+            // Capturar cualquier error y devolver un mensaje de error
+            return redirect()->route('register')->with('error', 'Failed to send email: ' . $e->getMessage());
+        }
+
     }
 
     /**
@@ -145,9 +152,11 @@ class RegisterController extends Controller
             now()->addMinutes(30), // The URL is valid for 30 minutes
             ['user' => $user->id]
         );
-
+      
         // Resend the activation email with the new signed URL
         Mail::to($user->email)->send(new ValidatorEmail($signedRoute));
+
+    
 
         // Redirect to the login page with a success message
         return redirect()->route('login')->with('success', 'A new activation link has been sent to your email.');

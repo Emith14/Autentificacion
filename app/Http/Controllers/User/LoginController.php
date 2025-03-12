@@ -93,7 +93,8 @@ class LoginController extends Controller
     {
         // Validate that the code is a 6-digit number
         $request->validate([
-            'code' => 'required|numeric|digits:6'
+            'code' => 'required|numeric|digits:6',
+            'g-recaptcha-response' => 'required|captcha',
         ]);
 
         Log::info('2FA code verification started');
